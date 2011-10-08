@@ -40,7 +40,7 @@ For errors, Perfherder tracks:
 
 ## I don't like IE, do I still have to browser test? 
 
-_Oh my yes._
+Nah.
 
 ## Will this interfere with my existing site tracking?
  
