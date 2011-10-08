@@ -48,6 +48,6 @@ _Oh my yes._
 
 Each perfherder event tracks two GA events. It is possible to track so many events that you hit GA's limit and can no longer receive valuable information about a user. This is especially dangerous in an eCommerce situation, where a user's final actions are the most valuable.
 
-Be especially careful not to calling <code>_prf</code> inside large loops, because this could quickly cause you to hit a user's limit. If you must track the performance of an item in a loop, only call <code>_prf</code> if <code>i === 0</code>.
+Be especially careful not to call <code>_prf</code> inside large loops, because this could quickly cause you to hit a user's limit. If you must track the performance of an item in a loop, only call <code>_prf</code> if <code>i === 0</code>.
 
 
