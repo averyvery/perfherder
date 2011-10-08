@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+	<head>
+		<title>PerfHerder 0.1</title>
+		<link rel="stylesheet" href="assets/bootstrap-1.2.0.css" />
+		<style type='text/css'>
+			section {
+				padding: 60px 0;
+			}
+		</style>
+		<script type='text/javascript'>_prf_st = new Date().getTime()</script>
+		<script type='text/javascript' src='perfherder.js'></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js"></script>
+		<script type='text/javascript' src='http://www.google-analytics.com/u/ga_debug.js'></script>
+		<script type='text/javascript'>
+			_gaq.push(
+				// ['_setAccount','UA-22711654-2'],
+				['_setAccount','UA-00000000-1'],
+				['_trackPageview'],
+				['_trackPageLoadTime']
+			);
+		</script>
+	</head>
+	<body>
+
+		<div class="container">
+			<section>
+
+			<div class="pageheader">
+				<h1>PerfHerder 0.1</h1>
+			</div>
+
+				<h3>Adding PerfHerder to your site</h3>
+
+				<p>For best results, set <code>_prf_st</code> (start time) in the &lt;head&gt; before you load any other scripts:</p>
+				
+<pre>
+&lt;script type='text/javascript'&gt;_prf_st = new Date().getTime()&lt;/script&gt;
+</pre>
+
+<p>Load the perfherder script later; anytime before you actually need to call a _prf method.</p>
+
+<pre>
+&lt;script type='text/javascript' src='perfherder.js'&gt;&lt;/script&gt;
+</pre>
+
+				<hr />
+
+				<h3>Tracking time since pageload with _prf</h3>
+
+				<p>Calling <code>_prf('Foo')</code> will track two GA events with:</p>
+
+				<ul>
+					<li>Category: <strong>Perf By Location</strong></li>
+					<li>Action: <strong>Foo</strong></li>
+					<li>Opt_label: <strong>[URI]</strong></li>
+					<li>Opt_value: <strong>[milliseconds since pageload]</strong></li>
+				</ul>
+
+				<ul>
+					<li>Category: <strong>Perf By Browser</strong></li>
+					<li>Action: <strong>Foo</strong></li>
+					<li>Opt_label: <strong>[browsername/version]</strong></li>
+					<li>Opt_value: <strong>[milliseconds since pageload]</strong></li>
+				</ul>
+
+<pre class="execute">
+_prf('Something happened');
+</pre>
+
+				<p>This is useful for checking your total pageload and execution time, or seeing how long your users wait on average before they can interact with a feature.</p>
+
+				<hr />
+
+				<h3>Tracking specific ranges </h3>
+
+				<p><code>_prf(name, mark_name) and _prf_mark(name)</code></p>
+
+				<p>You can also track how much time elapsed between two events by 'marking' a time and tracking against that mark. This is useful for watching potentially slow methods, or clocking your end-to-end execution time.</p>
+
+<pre class="execute">
+function slowMethod(){
+	for(i = 0; i < 20000; i++){
+		$('&lt;div&gt;&lt;/div&gt;').appendTo('body').remove();
+	}
+};
+_prf_mark('Slow Method');
+slowMethod();
+_prf('Slow method finished', 'Slow Method')
+</pre>
+
+				<hr />
+
+				<h2>Automatically catching errors</h2>
+
+				<p>You can turn on automatic error handling by running <code>_prf_trackerrors()</code>. When errors occur, they track two events:</p>
+
+				<ul>
+					<li>Category: <strong>Error By Type</strong></li>
+					<li>Action: <strong>[error message]</strong></li>
+					<li>Opt_label: <strong>[page URI and filename if available]</strong></li>
+					<li>Opt_value: <strong>[line number if available]</strong></li>
+				</ul>
+
+				<ul>
+					<li>Category: <strong>Error By Browser</strong></li>
+					<li>Action: <strong>[browsername/version]</strong></li>
+					<li>Opt_label: <strong>[page URI and filename if available]</strong></li>
+					<li>Opt_value: <strong>[line number if available]</strong></li>
+				</ul>
+
+<pre class="execute">
+_prf_trackerrors();
+alort('hello');
+</pre>
+
+				<p>To remove the error tracking, just run:</p>
+
+<pre class="execute">
+_prf_trackerrors(false);
+alort('hello');
+</pre>
+
+				<hr />
+
+				<h3>Manual exception catching</h3>
+
+				<p>If you'd rather manually track errors, pass your error objects to _prf_error(). "Caught" exceptions generally have less accurate information than window.onerror ones.</p>
+
+<pre class="execute">
+try {
+	alert(hello)
+} catch(err){
+	_prf_error(err);
+}
+</pre>
+
+			</section>
+
+
+		</script>
+
+		<script type="text/javascript">
+		
+			$('pre.execute').each(function(){
+					$(this).after('<a href="#" class="btn" style="margin-bottom: 10px">Execute</a><br />').next().click(function(event){
+					event.preventDefault();
+					eval($(this).prev().text());
+				});
+			});
+
+		</script>
+
+	</body>
+</html>

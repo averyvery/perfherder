@@ -1,0 +1,17 @@
+# Perfherder
+
+Aggregated performance checks and exception catching for JS. See index.html for installation and examples.
+
+# In GA
+
+Perfherder tracks your errors and performance checks using GA events. The categories used are "Perf By URI", "Perf By Browser," "Error By Type", and "Error By Browser".
+
+Methods and vars:
+
+- <code>_prf_st</code>: Start time, must be set to <code>new Date().getTime()</code> in the &lt;head&gt;
+- <code>_prf_mark(mark_name)</code>: Mark a particular time to track against later.
+- <code>_prf(name)</code>: Track the elapsed time since pageload, using the action name [name]
+- <code>_prf(name, mark_name)</code>: Track the elapsed time since <code>mark_name</code> was marked.
+- <code>_prf_error(error)</code>: Track an error returned by a catch statement.
+- <code>_prf_trackerrors</code>: Enable automatic error tracking on the window.
+- <code>_prf_trackerrors(false)</code>: Disable automatic error tracking.
