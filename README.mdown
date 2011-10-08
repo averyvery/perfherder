@@ -17,7 +17,7 @@ For perf, Perfherder tracks:
 - URI
 - Simplified user agent
 - Custom tracking name (eg: "Slideshow Setup Time")
-- Milliseconds elapsed
+- Milliseconds elapsed since pageload or a custom point
 
 GA will also provide average values for the milliseconds.
 
