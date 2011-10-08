@@ -28,7 +28,7 @@ For errors, Perfherder tracks:
 - URI (and JS filename, if available)
 - Line number (if available)
 
-## How Do I Use It?
+## How do I use it?
 
 - <code>_prf_st</code>: Start-time var, must be set to <code>new Date().getTime()</code> in the &lt;head&gt;
 - <code>_prf_mark(mark_name)</code>: Mark a particular time to track against later.
@@ -37,6 +37,10 @@ For errors, Perfherder tracks:
 - <code>_prf_error(error)</code>: Track an error returned by a catch statement.
 - <code>_prf_trackerrors</code>: Enable automatic error tracking on the window.
 - <code>_prf_trackerrors(false)</code>: Disable automatic error tracking.
+
+## I don't like IE, do I still have to browser test? 
+
+_Oh my yes._
 
 ## Will this interfere with my existing site tracking?
  
