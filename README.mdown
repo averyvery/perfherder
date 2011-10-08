@@ -1,16 +1,12 @@
-# Perfherder
+# Perfherder 0.1
 
-Aggregated performance checks and exception catching for JS. See index.html for installation and examples.
+Perfherder tracks errors and runs performance evaluations using GA events. See index.html for installation and examples.
 
-# What does it do?
-
-Perfherder tracks errors and runs performance evaluations using GA events. 
-
-# Why would I use it?
+## Why would I use it?
 
 Aggregating site-wide data is is a good way to spot trouble areas like slow pages, slow features, or rare browser-specific errors. Google Analytics is a natural choice for tracking JS issues, as it provides free data collection and powerful tools for viewing and understanding your data. 
 
-# What will I see in Google Analytics?
+## What will I see in Google Analytics?
 
 Perfherder tracks events in the categories "Perf By URI", "Perf By Browser," "Error By Type", and "Error By Browser".
 
@@ -32,7 +28,7 @@ For errors, Perfherder tracks:
 - URI (and JS filename, if available)
 - Line number (if available)
 
-# How Do I Use It?
+## How Do I Use It?
 
 - <code>_prf_st</code>: Start-time var, must be set to <code>new Date().getTime()</code> in the &lt;head&gt;
 - <code>_prf_mark(mark_name)</code>: Mark a particular time to track against later.
@@ -42,8 +38,8 @@ For errors, Perfherder tracks:
 - <code>_prf_trackerrors</code>: Enable automatic error tracking on the window.
 - <code>_prf_trackerrors(false)</code>: Disable automatic error tracking.
 
-# Will this interfere with my existing site tracking?
-
+## Will this interfere with my existing site tracking?
+ 
  > "For each visit (user session), a maximum of approximately 500 combined GATC requests (both events and page views) can be tracked."  - (GA docs)[http://code.google.com/apis/analytics/docs/tracking/eventTrackerGuide.html]
 
 Each perfherder error or check tracks two GA events. It is possible to track so many events that you hit GA's limit and can no longer receive valuable information about a user. This is especially dangerous in an eCommerce situation, where a user's final actions are the most valuable.
