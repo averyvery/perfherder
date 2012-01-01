@@ -8,7 +8,7 @@ Aggregating site-wide data is is a good way to spot trouble areas like slow page
 
 ## What will I see in Google Analytics?
 
-Perfherder tracks events under **Perf By URI**, **Perf By Browser**, **Error By Type**, and **Error By Browser**.
+Perfherder tracks events under **Perf By URI**, **Perf By Browser**, **Error By Type**, **Error By Browser**, and **Window Size**.
 
 Each event is logged once in both of its categories, which allows you to to narrow down issues on particular pages or in certain browsers.
 
