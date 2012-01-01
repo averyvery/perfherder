@@ -95,8 +95,7 @@
 			marks : {},
 			uri : window.location.href.replace(window.location.protocol + '//' + document.domain, ''),
 			log : function(message){
-				window.console && console.log && console.log(' . ' + message);
-				alert(message)
+				window.console && console.log && console.log('[Perfherder] ' + message);
 			},
 			round : function(int){
 				return Math.floor(int) / 1000;
@@ -180,6 +179,7 @@
 					dimensionKey = 'client' + name;
 					object = document.documentElement || document.body;
 				}
+				_p.log('Tracking window ' + name + ' as ' + object[dimensionKey]);
 				return object[dimensionKey];
 			}
 		};
