@@ -1,5 +1,5 @@
 /*
- * Perfherder 0.1
+ * Perfherder 0.2
  * JS perf and error catching with GA.
  * https://github.com/averyvery/perfherder
  *
@@ -15,9 +15,16 @@
 
 	'use strict';
 
+	window._gaq = window._gaq || [];
+
+	var perf_start_time = perf_start_time || (new Date()).getTime(),
+		browserDetect,
+		_p,
+		windowInterface;
+
 	/* @group browser detect */
 	
-		var BrowserDetect = {
+		browserDetect = {
 			init: function () {
 				this.browser = this.searchString(this.dataBrowser) || 'An unknown browser';
 				this.version = this.searchVersion(navigator.userAgent)
@@ -77,20 +84,19 @@
 				}
 			]
 		};
-		BrowserDetect.init();
+
+		browserDetect.init();
 	
 	/* @end */
 
 	/* @group perf ga */
 		
-		window._gaq = window._gaq || [];
-		var perf_start_time = perf_start_time || (new Date()).getTime();
-
-		var _p = {
+		_p = {
 			marks : {},
 			uri : window.location.href.replace(window.location.protocol + '//' + document.domain, ''),
 			log : function(message){
 				window.console && console.log && console.log(' . ' + message);
+				alert(message)
 			},
 			round : function(int){
 				return Math.floor(int) / 1000;
@@ -119,7 +125,7 @@
 				});
 			},
 			getBrowser : function(){
-				return BrowserDetect.browser + ' ' + BrowserDetect.version;
+				return browserDetect.browser + ' ' + browserDetect.version;
 			},
 			getMessage : function(error){
 				return error.message || error.description || '?';
@@ -155,14 +161,45 @@
 					_p.log('Tracking errors');
 				}
 			},
-
+			trackWindowSizes : function(){
+				_p.trackIndividualDimension('Height');
+				_p.trackIndividualDimension('Width');
+			},
+			trackIndividualDimension : function(name){
+				_gaq.push([
+					'_trackEvent',
+					'Window Size',
+					name,
+					_p.getIndividualDimension(name)
+				]);
+			},
+			getIndividualDimension : function(name){
+				var dimensionKey = 'inner' + name,
+					object = window;
+				if(!(dimensionKey in window)){
+					dimensionKey = 'client' + name;
+					object = document.documentElement || document.body;
+				}
+				return object[dimensionKey];
+			}
 		};
 
-		// expose to window
-		window._prf = _p.track;
-		window._prf_mark = _p.mark;
-		window._prf_error = _p.error;
-		window._prf_trackerrors = _p.toggleErrorTracking;
+	/* @end */
+
+	/* @group windowInterface */
+	
+		windowInterface = {
+			track : '',
+			mark : '_mark',
+			error : '_error',
+			toggleErrorTracking : '_trackerrors',
+			trackWindowSizes : '_window'
+		};
+
+		for(var key in windowInterface){
+			var method_name = '_prf' + windowInterface[key];
+			window[method_name] = _p[key];
+		}
 
 	/* @end */
 
