@@ -58,8 +58,8 @@ Nah.
  
  > "For each visit (user session), a maximum of approximately 500 combined GATC requests (both events and page views) can be tracked."  - [GA docs](http://code.google.com/apis/analytics/docs/tracking/eventTrackerGuide.html)
 
-Each perfherder event tracks two GA events. It is possible to track so many events that you hit GA's limit and can no longer receive valuable information about a user. This is especially dangerous in an eCommerce situation, where a user's final actions are the most valuable.
+Perfherder calls track between 1 and 3 events each. It is possible to track so many events that you hit GA's limit and can no longer receive valuable information about a user. This is especially dangerous in an eCommerce situation, where a user's final actions are the most valuable.
 
-Be especially careful not to call <code>_prf</code> inside large loops, because this could quickly cause you to hit a user's limit. If you must track the performance of a particular piece of code inside a loop, only call <code>_prf</code> the first time, using <code>(i === 0)</code>.
+If you're afraid of Perfherder flooding your data or blowing a user's request limit, you can set <code>sample_rate</code> to something like <code>0.2</code>. Doing this well prevent Perfherder from sending 80% of the data it collects.
 
 
