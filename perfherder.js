@@ -19,6 +19,7 @@
 
 	var start_time = start_time || (new Date()).getTime(),
 		browserDetect;
+
 	/* @group browser detect */
 	
 		browserDetect = {
