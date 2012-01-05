@@ -8,8 +8,13 @@
 				padding: 60px 0;
 			}
 		</style>
-		<script type='text/javascript'>_prf_st = new Date().getTime()</script>
+		<script type='text/javascript'>_prf_start = new Date().getTime()</script>
 		<script type='text/javascript' src='perfherder.js'></script>
+		<script type="text/javascript">
+			_prf = new Perfherder({
+				debug : true
+			});
+		</script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js"></script>
 		<script type='text/javascript' src='http://www.google-analytics.com/u/ga_debug.js'></script>
 		<script type='text/javascript'>
@@ -34,20 +39,30 @@
 				<p>For best results, set <code>_prf_st</code> (start time) in the &lt;head&gt; before you load any other scripts:</p>
 				
 <pre>
-&lt;script type='text/javascript'&gt;_prf_st = new Date().getTime()&lt;/script&gt;
+&lt;script type='text/javascript'&gt;_prf_start = new Date().getTime()&lt;/script&gt;
 </pre>
 
-<p>Load the perfherder script later; anytime before you actually need to call a _prf method.</p>
+<p>Load the perfherder script later; anytime before you actually need to track something. Then, instantiate it with "new".</p>
 
 <pre>
 &lt;script type='text/javascript' src='perfherder.js'&gt;&lt;/script&gt;
+&lt;script type='text/javascript'&gt;
+  _prf = new Perfherder();
+&lt;/script&gt;
 </pre>
 
 				<hr />
 
 				<h3>Tracking time since pageload with _prf</h3>
 
-				<p>Calling <code>_prf('Foo')</code> will track two GA events with:</p>
+				<p>Calling <code>_prf.record('Foo')</code> will track three GA events with:</p>
+
+				<ul>
+					<li>Category: <strong>Perf</strong></li>
+					<li>Action: <strong>Foo</strong></li>
+					<li>Opt_label: <strong>Time</strong></li>
+					<li>Opt_value: <strong>[milliseconds since pageload]</strong></li>
+				</ul>
 
 				<ul>
 					<li>Category: <strong>Perf By URI</strong></li>
@@ -64,7 +79,7 @@
 				</ul>
 
 <pre class="execute">
-_prf('Something happened');
+_prf.record('Something happened');
 </pre>
 
 				<p>This is useful for checking your total pageload and execution time, or seeing how long your users wait on average before they can interact with a feature.</p>
@@ -83,16 +98,16 @@ function slowMethod(){
 		$('&lt;div&gt;&lt;/div&gt;').appendTo('body').remove();
 	}
 };
-_prf_mark('Slow Method');
+_prf.mark('Slow Method');
 slowMethod();
-_prf('Slow method finished', 'Slow Method')
+_prf.record('Slow method finished', 'Slow Method')
 </pre>
 
 				<hr />
 
-				<h2>Automatically catching errors</h2>
+				<h2>Automatic error catching</h2>
 
-				<p>You can turn on automatic error handling by running <code>_prf_trackerrors()</code>. When errors occur, they track two events:</p>
+				<p>When errors occur, Perfherder automatically records three events:</p>
 
 				<ul>
 					<li>Category: <strong>Error By Type</strong></li>
@@ -109,20 +124,12 @@ _prf('Slow method finished', 'Slow Method')
 				</ul>
 
 <pre class="execute">
-_prf_trackerrors();
-alort('hello');
-</pre>
-
-				<p>To remove the error tracking, just run:</p>
-
-<pre class="execute">
-_prf_trackerrors(false);
 alort('hello');
 </pre>
 
 				<hr />
 
-				<h3>Manual exception catching</h3>
+				<h3>Manual error catching</h3>
 
 				<p>If you'd rather manually track errors, pass your error objects to _prf_error(). "Caught" exceptions generally have less accurate information than window.onerror ones.</p>
 
@@ -130,7 +137,7 @@ alort('hello');
 try {
 	alert(hello);
 } catch(err){
-	_prf_error(err);
+	_prf.error(err);
 }
 </pre>
 
@@ -143,14 +150,50 @@ try {
 					- a metric you couldn't derive from the default GA statistics.
 				</p>
 
-				<p>Using <code>_prf_window</code>, you can record this information.</p>
+				<p>Using <code>_prf.window</code>, you can record this information.</p>
 
 <pre class="execute">
-_prf_window();
+_prf.window();
+</pre>
+
+				<p>
+					Note that this method executes by default on pageload - to avoid it, you need to set 
+					<code>track_window</code> to false when you initialize Perfherder.
+				</p>
+
+				<ul>
+					<li>Category: <strong>Window</strong></li>
+					<li>Action: <strong>Dimension</strong></li>
+					<li>Opt_label: <strong>[Height/Width/Total pixels]</strong></li>
+					<li>Opt_value: <strong>[Pixels]</strong></li>
+				</ul>
+				<hr />
+
+				<h2>Settings</h2>
+
+				<ul>
+					<li><code>debug:</code> (boolean) Toggles console logging.</li>
+					<li><code>track_errors:</code> (boolean) Should window.onerror events automatically track?</li>
+					<li><code>track_window:</code> (boolean) Should window dimensions be tracked?</li>
+					<li><code>sample_rate:</code> (integer) Default is 1. If you set this to 0.1, Perfherder will randomly send only 10% of the data it collects to GA. This is a good way to cut down on GA events on a very highly-trafficked site.</li>
+				</ul>
+
+				<p>You can also track how much time elapsed between two events by 'marking' a time and tracking against that mark. This is useful for watching potentially slow methods, or clocking your end-to-end execution time.</p>
+
+<pre>
+_prf = new Perfherder({
+	debug : true
+});
+</pre>
+
+				<p>...or, you can set them directly on your object.</p>
+
+<pre>
+_prf.debug = false;
+_prf.track_errors = false;
 </pre>
 
 			</section>
-
 
 		</script>
 

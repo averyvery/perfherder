@@ -11,17 +11,14 @@
  * Uses parts from https://github.com/rsyring/browser-detect/blob/master/browser-detect.js
  */
 
-;(function(document, window, perf_start_time){
+;(function(document, window, start_time){
 
 	'use strict';
 
 	window._gaq = window._gaq || [];
 
-	var perf_start_time = perf_start_time || (new Date()).getTime(),
-		browserDetect,
-		_p,
-		windowInterface;
-
+	var start_time = start_time || (new Date()).getTime(),
+		browserDetect;
 	/* @group browser detect */
 	
 		browserDetect = {
@@ -90,117 +87,179 @@
 	/* @end */
 
 	/* @group perf ga */
-		
-		_p = {
-			marks : {},
-			uri : window.location.href.replace(window.location.protocol + '//' + document.domain, ''),
-			log : function(message){
-				window.console && console.log && console.log('[Perfherder] ' + message);
-			},
-			round : function(int){
-				return Math.floor(int) / 1000;
-			
-			},
-			track : function(name, since){
-				var current_time = new Date().getTime(),
-					elapsed_time = current_time - (_p.marks[since] || perf_start_time),
-					message = 'Tracking "' + name + '" at ' + _p.round(elapsed_time) + 's';
-				if(since){
-					message += ' since "' + since +'"';
-				}
-				_p.sendToGa(['_trackEvent', 'Perf By URI', name, _p.uri, elapsed_time])
-				_p.sendToGa(['_trackEvent', 'Perf By Browser', name, _p.getBrowser(), elapsed_time])
-				_p.log(message);
-			},
-			mark : function(name){
-				_p.marks[name] = new Date().getTime();
-				var message = 'Marking "' + name + '" at ' + _p.round(_p.marks[name] - perf_start_time) + 's';
-				_p.log(message);
-			},
-			windowError : function(message, url, lineNumber){
-				_p.error({
-					message : message,
-					lineNumber : lineNumber
-				});
-			},
-			getBrowser : function(){
-				return browserDetect.browser + ' ' + browserDetect.version;
-			},
-			getMessage : function(error){
-				return error.message || error.description || '?';
-			},
-			error : function(error){
-				window.console && console.log && console.log(error);
-				var lineNumber = error.lineNumber || 0,
-					fileName = (error.fileName) ? '\, ' + error.fileName : '';
-				_p.sendToGa(['_trackEvent', 'Error By Type', _p.getMessage(error), _p.uri + fileName, lineNumber]);
-				_p.sendToGa(['_trackEvent', 'Error By Browser', _p.getBrowser(), _p.uri + fileName, lineNumber]);
-				_p.log('Tracking error: "' + _p.getMessage(error) + '" in ' + _p.getBrowser() + ' on ' + _p.uri + fileName + ' at line ' + lineNumber);
-			},
-			sendToGa : function(array){
-				for(var i = 0; i < array.length; i++){
-					array[i] = _p.replaceBadCharacters(array[i]);
-				}
-				_gaq.push(array);
-			},
-			replaceBadCharacters : function(string){
-				if(string.replace){
-					string = string.replace(/,/g, '\\,');
-					string = string.replace(/"/g, '\\\"');
-					string = string.replace(/'/g, '\\\'');
-				}
-				return string;
-			},
-			toggleErrorTracking : function(value){
-				if(value === false){
-					window.onerror = undefined;
-					_p.log('No longer tracking errors');
-				} else {
-					window.onerror = _p.windowError;
-					_p.log('Tracking errors');
-				}
-			},
-			trackWindowSizes : function(){
-				_p.trackIndividualDimension('Height');
-				_p.trackIndividualDimension('Width');
-			},
-			trackIndividualDimension : function(name){
-				_gaq.push([
-					'_trackEvent',
-					'Window Size',
-					name,
-					_p.getIndividualDimension(name)
-				]);
-			},
-			getIndividualDimension : function(name){
-				var dimensionKey = 'inner' + name,
-					object = window;
-				if(!(dimensionKey in window)){
-					dimensionKey = 'client' + name;
-					object = document.documentElement || document.body;
-				}
-				_p.log('Tracking window ' + name + ' as ' + object[dimensionKey]);
-				return object[dimensionKey];
+
+		window.Perfherder = window.Perfherder || function(settings){
+			for(var key in settings){
+				this.log('Setting ' + key + ' to ' + settings[key]);
+				this[key] = settings[key];
 			}
+			this.init();
+		};
+		
+		Perfherder.prototype = {
+
+			/* @group utility */
+			
+				init : function(){
+					this.bindErrorTracking();
+					setTimeout(this.proxy('window'), 500);
+				},
+
+				track_errors : true,
+
+				track_window : true,
+
+				debug : false,
+
+				sample_rate : 1,
+
+				marks : {},
+
+				uri : window.location.href.replace(window.location.protocol + '//' + document.domain, ''),
+
+				log : function(message){
+					this.debug && window.console && console.log && console.log('PERFHERDER -- ' + message.toLowerCase());
+				},
+
+				proxy : function(method_name){
+					var self = this;
+					return function(argument){
+						self[method_name].call(self, argument);
+					}
+				},
+
+			/* @end */
+			
+			/* @group sending to GA */
+			
+				sendToGa : function(category, action, opt_label, opt_value){
+					var parsed_args = this.parseArguments(arguments),
+						should_send = Math.random() < this.sample_rate;
+					 should_send || this.log('(skipping - sample rate is ' + this.sample_rate + ')');
+					 should_send && _gaq.push(parsed_args);
+				},
+
+				parseArguments : function(args){
+					var sliced_args = Array.prototype.slice.call(args);
+					for(var i = 0; i < sliced_args.length; i++){
+						sliced_args[i] = this.replaceBadCharacters(sliced_args[i]);
+					}
+					sliced_args.unshift('_trackEvent');
+					return sliced_args;
+				},
+
+				replaceBadCharacters : function(string){
+					if(string.replace){
+						string = string.replace(/,/g, '\\,').
+							replace(/"/g, '\\\"').
+							replace(/'/g, '\\\'');
+					}
+					return string;
+			},
+
+			/* @end */
+			
+			/* @group perf */
+			
+				record : function(label, since){
+					var current_time = new Date().getTime(),
+						elapsed_time = current_time - (this.marks[since] || start_time),
+						message = label + '" at ' + this.round(elapsed_time) + 's';
+					if(since){
+						message += ' since "' + since +'"';
+					}
+					this.sendToGa('Perf', label, 'All', elapsed_time);
+					this.sendToGa('Perf By URI', label, this.uri, elapsed_time);
+					this.sendToGa('Perf By Browser', label, this.getBrowser(), elapsed_time);
+					this.log(message);
+				},
+
+				round : function(int){
+					return Math.floor(int) / 1000;
+				},
+
+				mark : function(name){
+					this.marks[name] = new Date().getTime();
+					var message = 'Marking "' + name + '" at ' + this.round(this.marks[name] - start_time) + 's';
+					this.log(message);
+				},
+			
+			/* @end */
+			
+			/* @group errors */
+			
+				bindErrorTracking : function(){
+					if(this.track_errors){
+						this.log('Tracking errors');
+						window.onerror = this.proxy('windowError');
+					}
+				},
+
+				windowError : function(message, url, lineNumber){
+					this.track_errors && this.error({
+						message : message,
+						lineNumber : lineNumber
+					});
+				},
+
+				getErrorMessage : function(error){
+					return error.message || error.description || '?';
+				},
+
+				error : function(error){
+					window.console && console.log && console.log(error);
+					var lineNumber = error.lineNumber || 0,
+						fileName = (error.fileName) ? '\, ' + error.fileName : '';
+					this.sendToGa('Error By Type', this.getErrorMessage(error), this.uri + fileName, lineNumber);
+					this.sendToGa('Error By Browser', this.getBrowser(), this.uri + fileName, lineNumber);
+					this.log('error: "' + this.getErrorMessage(error) + '" in ' + this.getBrowser() + ' on ' + this.uri + fileName + ' at line ' + lineNumber);
+				},
+			
+			/* @end */
+
+			/* @group browser */
+
+				getBrowser : function(){
+					return browserDetect.browser + ' ' + browserDetect.version;
+				},
+
+				window : function(){
+					if(this.track_window){
+						this.log('Tracking window dimensions...');
+						this.trackWindowDimensions();
+					} else {
+						this.log('NOT tracking window dimensions');
+					}
+				},
+
+				trackWindowDimensions : function(){
+					var height = this.getIndividualDimension('Height'),
+						width = this.getIndividualDimension('Width'),
+						total = width * height;
+					this.trackIndividualDimension('Total Pixels', total);
+					this.trackIndividualDimension('Height', height);
+					this.trackIndividualDimension('Width', width);
+				},
+
+				trackIndividualDimension : function(name, amount){
+					this.log('window ' + name + ': ' + amount);
+					this.sendToGa('Window', 'Dimension', name, amount);
+				},
+
+				getIndividualDimension : function(name){
+					var dimensionKey = 'inner' + name,
+						object = window;
+					if(!(dimensionKey in window)){
+						dimensionKey = 'client' + name;
+						object = document.documentElement || document.body;
+					}
+					return object[dimensionKey];
+				}
+			
+			/* @end */
+			
 		};
 
 	/* @end */
 
-	/* @group windowInterface */
-	
-		windowInterface = {
-			track : '',
-			mark : '_mark',
-			error : '_error',
-			toggleErrorTracking : '_trackerrors',
-			trackWindowSizes : '_window'
-		};
-
-		for(var key in windowInterface){
-			var method_name = '_prf' + windowInterface[key];
-			window[method_name] = _p[key];
-		}
-
-	/* @end */
-
-})(document, window, _prf_st);
+})(document, window, _prf_start);

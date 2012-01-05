@@ -28,16 +28,27 @@ For errors, Perfherder tracks:
 - URI (and JS filename, if available)
 - Line number (if available)
 
+Perfherder also records your visitors' actual window sizes.
+
 ## How do I use it?
 
-- <code>_prf_st</code>: Start-time var, must be set to <code>new Date().getTime()</code> in the &lt;head&gt;
-- <code>_prf_mark(mark_name)</code>: Mark a particular time to track against later.
-- <code>_prf(name)</code>: Track the elapsed time since pageload, using the action name [name]
-- <code>_prf(name, mark_name)</code>: Track the elapsed time since <code>mark_name</code> was marked.
-- <code>_prf_error(error)</code>: Track an error returned by a catch statement.
-- <code>_prf_trackerrors</code>: Enable automatic error tracking on the window.
-- <code>_prf_trackerrors(false)</code>: Disable automatic error tracking.
-- <code>_prf_window()</code>: Track window width and height as separate values. Great for getting average sizes of actual windows (as opposed to GA's default screen size).
+Instantiate with <code>var _prf = new Perfherder();</code>
+
+- <code>_prf_start</code>: Start-time var, must be set to <code>new Date().getTime()</code> in the &lt;head&gt;
+- <code>_prf.mark(mark_name)</code>: Mark a particular time to track against later.
+- <code>_prf.record(name)</code>: Track the elapsed time since pageload, using the action name [name]
+- <code>_prf.record(name, mark_name)</code>: Track the elapsed time since <code>mark_name</code> was marked.
+- <code>_prf.record(error)</code>: Track an error returned by a catch statement.
+- <code>_prf.window()</code>: Track window width and height as separate values. Great for getting average sizes of actual windows (as opposed to GA's default screen size).
+
+## How do I change the settings?
+
+Just instantiate a little differently: <code>var _prf = new Perfherder({ setting_name : value });</code>
+
+- <code>track_errors:</code> Enable/disable automatic error tracking.
+- <code>track_window:</code> Enable/disable automatic window dimension logging.
+- <code>debug:</code> Enable/disable logging
+- <code>sample_rate:</code> (Defaults to 1) If you set this to 0.1, Perfherder will randomly send only 10% of the data it collects to GA. This is a good way to cut down on GA events on a very highly-trafficked site.
 
 ## I don't like IE, do I still have to browser test? 
 
