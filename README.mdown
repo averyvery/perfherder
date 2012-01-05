@@ -38,7 +38,7 @@ Instantiate with <code>var _prf = new Perfherder();</code>
 - <code>_prf.mark(mark_name)</code>: Mark a particular time to track against later.
 - <code>_prf.record(name)</code>: Track the elapsed time since pageload, using the action name [name]
 - <code>_prf.record(name, mark_name)</code>: Track the elapsed time since <code>mark_name</code> was marked.
-- <code>_prf.record(error)</code>: Track an error returned by a catch statement.
+- <code>_prf.error(error)</code>: Track an error returned by a catch statement.
 - <code>_prf.window()</code>: Track window width and height as separate values. Great for getting average sizes of actual windows (as opposed to GA's default screen size).
 
 ## How do I change the settings?
